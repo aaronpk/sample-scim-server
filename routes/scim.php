@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SCIMController;
 
 /*
 |--------------------------------------------------------------------------
@@ -9,6 +10,4 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/{tenant}/Users', function (Request $request) {
-    return 'Hello';
-});
+Route::get('/{tenant}/Users', [SCIMController::class, 'users']);
