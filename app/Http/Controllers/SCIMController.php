@@ -52,6 +52,8 @@ class SCIMController extends Controller
                     case 'userName':
                         $users = $users->where('username', $filterValue);
                         break;
+                    default:
+                        return $this->error('invalidFilter', 400, 'Unrecognized filter attribute');
                 }
 
                 $users = $users->get();
