@@ -16,8 +16,10 @@ class UserCollection extends ResourceCollection
     {
         return [
             'schemas' => ['urn:ietf:params:scim:api:messages:2.0:ListResponse'],
-            'totalResults' => count($this->collection),
             'Resources' => $this->collection,
+            'totalResults' => count($this->collection),
+            'itemsPerPage' => 1,
+            'startIndex' => 1,
         ];
     }
 }

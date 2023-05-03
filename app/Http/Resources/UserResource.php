@@ -15,6 +15,7 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'schemas' => ['urn:ietf:params:scim:schemas:core:2.0:User'],
             'id' => $this->id,
             'userName' => $this->username,
             'name' => [
@@ -22,7 +23,9 @@ class UserResource extends JsonResource
                 'givenName' => $this->first_name,
                 'familyName' => $this->last_name,
             ],
-            'emails' => [$this->email],
+            'emails' => [
+                ['value' => $this->email]
+            ],
             'active' => (bool)$this->active,
         ];
     }
