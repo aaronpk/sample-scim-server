@@ -147,6 +147,28 @@ class SCIMController extends Controller
         return $this->response(new UserResource($user), 200);
     }
 
+    # Okta uses PATCH only to deactivate users
+    public function patchUser(Request $request, string $tenant_id, string $user_id) {
+        if($request->input('schemas') != ['urn:ietf:params:scim:api:messages:2.0:PatchOp']) {
+            return $this->error('invalidOperation', 400);
+        }
+
+        $user = User::where('tenant_id', $tenant_id)->where('id', $user_id)->first();
+        if(!$user)
+            return $this->error('notFound', 404, 'User ID not found');
+
+        $operations = $request->input('Operations');
+        foreach($operations as $op) {
+            if($op['op'] == 'replace' && isset($op['value']['active'])) {
+                $user->active = (bool)$op['value']['active'];
+            }
+        }
+
+        $user->save();
+
+        return $this->response(new UserResource($user), 200);
+    }
+
     public function groups(Request $request, string $tenant_id) {
         return $this->response([
             'schemas' => ['urn:ietf:params:scim:api:messages:2.0:ListResponse'],
