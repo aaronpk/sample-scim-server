@@ -111,12 +111,40 @@ class SCIMController extends Controller
         $user->external_id = $request->input('externalId', '');
         $user->first_name = $request->input('name.givenName');
         $user->last_name = $request->input('name.familyName');
-        $emails = $request->input('emails');
         $user->email = ($email ? $email['value'] : '');
         $user->active = $request->input('active');
+        $user->scim_user_info = json_encode($request->all(), JSON_PRETTY_PRINT+JSON_UNESCAPED_SLASHES);
         $user->save();
 
         return $this->response(new UserResource($user), 201);
+    }
+
+    public function updateUser(Request $request, string $tenant_id, string $user_id) {
+        if($request->input('schemas') != ['urn:ietf:params:scim:schemas:core:2.0:User']) {
+            return $this->error('invalidOperation', 400);
+        }
+
+        $user = User::where('tenant_id', $tenant_id)->where('id', $user_id)->first();
+        if(!$user)
+            return $this->error('notFound', 404, 'User ID not found');
+
+        $email = false;
+        $emails = $request->input('emails');
+        if(count($emails) >= 1) {
+            $email = $emails[0];
+        }
+
+        $user->username = $request->input('userName');
+        $user->password = 'none';
+        $user->external_id = $request->input('externalId', '');
+        $user->first_name = $request->input('name.givenName');
+        $user->last_name = $request->input('name.familyName');
+        $user->email = ($email ? $email['value'] : '');
+        $user->active = $request->input('active');
+        $user->scim_user_info = json_encode($request->all(), JSON_PRETTY_PRINT+JSON_UNESCAPED_SLASHES);
+        $user->save();
+
+        return $this->response(new UserResource($user), 200);
     }
 
     public function groups(Request $request, string $tenant_id) {
