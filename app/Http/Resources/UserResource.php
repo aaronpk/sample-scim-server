@@ -17,6 +17,7 @@ class UserResource extends JsonResource
         return [
             'schemas' => ['urn:ietf:params:scim:schemas:core:2.0:User'],
             'id' => $this->id,
+            'externalId' => $this->external_id,
             'userName' => $this->username,
             'name' => [
                 'formatted' => $this->first_name.' '.$this->last_name,

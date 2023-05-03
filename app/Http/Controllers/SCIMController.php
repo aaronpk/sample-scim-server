@@ -65,13 +65,54 @@ class SCIMController extends Controller
             $users = User::where('tenant_id', $tenant_id)->get();
         }
 
-        return new UserCollection($users);
+        return $this->response(new UserCollection($users));
     }
 
     public function user(Request $request, string $tenant_id, string $user_id) {
         $user = User::where('tenant_id', $tenant_id)->where('id', $user_id)->first();
         if(!$user)
-            return $this->response(['error' => 'not_found'], 404);
-        return new UserResource($user);
+            return $this->error('notFound', 404, 'User ID not found');
+        return $this->response(new UserResource($user));
+    }
+
+    public function createUser(Request $request, string $tenant_id) {
+        if($request->input('schemas') != ['urn:ietf:params:scim:schemas:core:2.0:User']) {
+            return $this->error('invalidOperation', 400);
+        }
+
+        # First check if the user already exists and return an error if so
+        $username = $request->input('userName');
+        $user = User::where('tenant_id', $tenant_id)->where('username', $username)->first();
+
+        if($user) {
+            return $this->error('userExists', 409, 'A user with this username already exists');
+        }
+
+        $user = new User();
+        $user->tenant_id = $tenant_id;
+        $user->username = $username;
+        $user->password = 'none';
+        $user->external_id = $request->input('externalId', '');
+        $user->first_name = $request->input('name.givenName');
+        $user->last_name = $request->input('name.familyName');
+        $emails = $request->input('emails');
+        if(count($emails) >= 1) {
+            $email = $emails[0];
+            $user->email = $email['value'];
+        }
+        $user->active = $request->input('active');
+        $user->save();
+
+        return $this->response(new UserResource($user), 201);
+    }
+
+    public function groups(Request $request, string $tenant_id) {
+        return $this->response([
+            'schemas' => ['urn:ietf:params:scim:api:messages:2.0:ListResponse'],
+            'Resources' => [],
+            'totalResults' => 0,
+            'itemsPerPage' => 1,
+            'startIndex' => 1,
+        ]);
     }
 }
