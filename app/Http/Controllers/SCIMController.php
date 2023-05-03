@@ -88,18 +88,31 @@ class SCIMController extends Controller
             return $this->error('userExists', 409, 'A user with this username already exists');
         }
 
-        $user = new User();
-        $user->tenant_id = $tenant_id;
+        $email = false;
+        $emails = $request->input('emails');
+        if(count($emails) >= 1) {
+            $email = $emails[0];
+        }
+
+        $user = null;
+
+        if($email) {
+            # Check if the user exists by email address, and allow updating that user
+            $user = User::where('tenant_id', $tenant_id)->where('email', $email['value'])->first();
+        }
+
+        if(!$user) {
+            $user = new User();
+            $user->tenant_id = $tenant_id;
+        }
+
         $user->username = $username;
         $user->password = 'none';
         $user->external_id = $request->input('externalId', '');
         $user->first_name = $request->input('name.givenName');
         $user->last_name = $request->input('name.familyName');
         $emails = $request->input('emails');
-        if(count($emails) >= 1) {
-            $email = $emails[0];
-            $user->email = $email['value'];
-        }
+        $user->email = ($email ? $email['value'] : '');
         $user->active = $request->input('active');
         $user->save();
 
