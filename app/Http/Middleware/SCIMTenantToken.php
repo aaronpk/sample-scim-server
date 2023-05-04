@@ -20,6 +20,11 @@ class SCIMTenantToken
         $valid = false;
 
         $header = $request->header('Authorization');
+
+        // Okta sends `Authorization: TOKEN`
+        // Azure sends `Authorization: Bearer TOKEN`
+        $header = str_replace('Bearer ', '', $header);
+
         if($header) {
             $token = TenantAccessToken::findFromToken($header);
             if($token) {

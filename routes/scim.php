@@ -10,6 +10,8 @@ use App\Http\Controllers\SCIMController;
 |--------------------------------------------------------------------------
 */
 
+Route::get('/{tenant}/Schema', [SCIMController::class, 'schema']);
+
 Route::get('/{tenant}/Users', [SCIMController::class, 'users']);
 Route::get('/{tenant}/Users/{user_id}', [SCIMController::class, 'user']);
 Route::post('/{tenant}/Users', [SCIMController::class, 'createUser']);

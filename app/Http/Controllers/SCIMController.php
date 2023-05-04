@@ -8,6 +8,7 @@ use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use Cloudstek\SCIM\FilterParser\FilterParser;
 use Cloudstek\SCIM\FilterParser\AST;
+use Log;
 
 class SCIMController extends Controller
 {
@@ -24,6 +25,10 @@ class SCIMController extends Controller
             'detail' => $detail,
         ], $code)
           ->header('Content-Type', 'application/scim+json');
+    }
+
+    public function schema(Request $request, string $tenant_id) {
+
     }
 
     public function users(Request $request, string $tenant_id) {
@@ -79,9 +84,11 @@ class SCIMController extends Controller
     }
 
     public function createUser(Request $request, string $tenant_id) {
-        if($request->input('schemas') != ['urn:ietf:params:scim:schemas:core:2.0:User']) {
+        if(!in_array('urn:ietf:params:scim:schemas:core:2.0:User', $request->input('schemas'))) {
             return $this->error('invalidOperation', 400);
         }
+
+        Log::info("CREATING USER: ".json_encode($request->input()));
 
         # First check if the user already exists and return an error if so
         $username = $request->input('userName');
@@ -93,7 +100,7 @@ class SCIMController extends Controller
 
         $email = false;
         $emails = $request->input('emails');
-        if(count($emails) >= 1) {
+        if($emails && count($emails) >= 1) {
             $email = $emails[0];
         }
 
@@ -123,7 +130,7 @@ class SCIMController extends Controller
     }
 
     public function updateUser(Request $request, string $tenant_id, string $user_id) {
-        if($request->input('schemas') != ['urn:ietf:params:scim:schemas:core:2.0:User']) {
+        if(!in_array('urn:ietf:params:scim:schemas:core:2.0:User', $request->input('schemas'))) {
             return $this->error('invalidOperation', 400);
         }
 
@@ -152,7 +159,7 @@ class SCIMController extends Controller
 
     # Okta uses PATCH only to deactivate users
     public function patchUser(Request $request, string $tenant_id, string $user_id) {
-        if($request->input('schemas') != ['urn:ietf:params:scim:api:messages:2.0:PatchOp']) {
+        if(!in_array('urn:ietf:params:scim:api:messages:2.0:PatchOp', $request->input('schemas'))) {
             return $this->error('invalidOperation', 400);
         }
 
