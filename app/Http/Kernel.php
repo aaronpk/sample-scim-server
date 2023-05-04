@@ -45,7 +45,7 @@ class Kernel extends HttpKernel
         ],
 
         'scim' => [
-
+            \App\Http\Middleware\SCIMTenantToken::class,
         ],
     ];
 
