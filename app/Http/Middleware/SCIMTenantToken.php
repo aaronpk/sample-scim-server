@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Models\TenantAccessToken;
+use Log;
 
 class SCIMTenantToken
 {
@@ -19,8 +20,8 @@ class SCIMTenantToken
         $valid = false;
 
         $header = $request->header('Authorization');
-        if($header && preg_match('/Bearer (.+)/', $header, $match)) {
-            $token = TenantAccessToken::findFromToken($match[1]);
+        if($header) {
+            $token = TenantAccessToken::findFromToken($header);
             if($token) {
                 // Make sure this token matches the tenant ID in the request
                 if((int)$request->route('tenant') == $token->tenant->id) {
