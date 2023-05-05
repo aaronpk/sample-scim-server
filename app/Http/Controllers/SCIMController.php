@@ -119,10 +119,10 @@ class SCIMController extends Controller
         $user->username = $username;
         $user->password = 'none';
         $user->external_id = $request->input('externalId', '');
-        $user->first_name = $request->input('name.givenName');
-        $user->last_name = $request->input('name.familyName');
+        $user->first_name = $request->input('name.givenName', '');
+        $user->last_name = $request->input('name.familyName', '');
         $user->email = ($email ? $email['value'] : null);
-        $user->active = $request->input('active');
+        $user->active = $request->input('active', true);
         $user->scim_user_info = json_encode($request->all(), JSON_PRETTY_PRINT+JSON_UNESCAPED_SLASHES);
         $user->save();
 
