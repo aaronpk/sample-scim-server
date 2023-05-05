@@ -179,6 +179,18 @@ class SCIMController extends Controller
         return $this->response(new UserResource($user), 200);
     }
 
+    # Azure requires DELETE support
+    public function deleteUser(Request $request, string $tenant_id, string $user_id) {
+
+        $user = User::where('tenant_id', $tenant_id)->where('id', $user_id)->first();
+        if(!$user)
+            return $this->error('notFound', 404, 'User ID not found');
+
+        $user->delete();
+
+        return $this->response('', 204);
+    }
+
     public function groups(Request $request, string $tenant_id) {
         return $this->response([
             'schemas' => ['urn:ietf:params:scim:api:messages:2.0:ListResponse'],
