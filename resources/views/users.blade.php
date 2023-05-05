@@ -45,7 +45,7 @@ $(function(){
 
     function loadUsers() {
 
-        $.getJSON("/api/users/<?= $_GET['tenant'] ?>", function(data){
+        $.getJSON("/api/users/<?= Request::input('tenant') ?>", function(data){
 
             $("#users tbody tr").remove();
             for(var i in data.users) {
